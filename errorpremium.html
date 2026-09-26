@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Error Premium</title>
+    <style>
+      * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gold: #f5b81b;
+            --win-green: #00f5a0;
+            --loss-red: #ff4d6d;
+            --card-border: rgba(0, 245, 160, 0.8); 
+            --water-blue: #00b4d8;
+            --panel-bg: rgba(0, 40, 60, 0.15); 
+            --blood-red: #ff0000; /* রক্তের মতো লাল রঙের ভেরিয়েবল */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #000911;
+        }
+
+        /* Game Background Frame */
+        .game-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1;
+        }
+
+        /* Floating Draggable Panel */
+        .drag-widget {
+            position: fixed;
+            z-index: 2147483647 !important; 
+            background: var(--panel-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            border: 1.8px solid var(--card-border);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            touch-action: none;
+            pointer-events: auto !important;
+        }
+
+        #main-panel {
+            top: 70px;
+            right: 14px;
+            width: 185px;
+            padding: 14px 12px;
+        }
+
+        /* Branding Headers */
+        .widget-header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .brand-logo {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 2px solid var(--water-blue);
+            object-fit: cover;
+            margin-bottom: 6px;
+        }
+        
+        /* রক্তের মতো লাল এবং স্পষ্ট নাম */
+        .brand-name {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--blood-red);
+            text-align: center;
+            text-shadow: 0px 0px 8px rgba(255, 0, 0, 0.8), 0 1px 3px #000000;
+            letter-spacing: 0.5px;
+            margin: 2px 0;
+        }
+        .sub {
+            font-size: 8.5px;
+            color: #ffffff;
+            font-weight: 800;
+            text-shadow: 0 1px 2px #000;
+            letter-spacing: 0.5px;
+        }
+
+        /* স্ক্রিন ট্রানজিশন লজিক */
+        .screen {
+            display: none !important;
+        }
+        .screen.active {
+            display: block !important;
+        }
+
+        /* Controls & Form Inputs */
+        .glass-input {
+            width: 100%;
+            padding: 10px;
+            background: #000000 !important;
+            border: 1.5px solid var(--water-blue);
+            border-radius: 44px;
+            color: #ffffff !important;
+            font-size: 12px;
+            font-weight: 700;
+            text-align: center;
+            margin: 12px auto;
+            display: block;
+            outline: none;
+            user-select: text !important; 
+            pointer-events: auto !important;
+        }
+        
+        .btn-gold {
+            width: 100%;
+            background: linear-gradient(95deg, var(--water-blue), #0077b6);
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 11px 0;
+            border-radius: 50px;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: 8px;
+            pointer-events: auto !important;
+        }
+        .btn-gold:active { transform: scale(0.96); }
+
+        .btn-outline {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1.5px solid var(--gold);
+            border-radius: 50px;
+            padding: 8px 0;
+            color: var(--gold);
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 6px;
+            cursor: pointer;
+        }
+
+        /* Layout Elements */
+        .prediction-big {
+            font-size: 34px;
+            font-weight: 900;
+            text-align: center;
+            margin-top: 8px;
+            text-shadow: 0 2px 4px #000;
+        }
+        .prediction-num {
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
+            color: #ffffff;
+            width: fit-content;
+            padding: 3px 14px;
+            margin: 0 auto 8px auto;
+            border-radius: 20px;
+        }
+        .meta-row {
+            display: flex;
+            justify-content: center;
+            background: rgba(0,0,0,0.8);
+            padding: 6px 12px;
+            border-radius: 60px;
+            margin: 10px 0;
+        }
+        .timer-text {
+            font-family: monospace;
+            font-size: 15px;
+            font-weight: 800;
+            color: #00f5a0;
+        }
+
+        .nav-footer {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .tiny-btn {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--water-blue);
+            border-radius: 30px;
+            text-align: center;
+            font-size: 10px;
+            padding: 7px 20px;
+            cursor: pointer;
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+  </head>
+  <body>
+    <iframe class="game-frame" src="https://dkwin.org/"></iframe>
+    
+    <div id="main-panel" class="drag-widget">
+      
+      <div id="loginScreen" class="screen">
+        <div class="widget-header">
+          <img class="brand-logo" src="https://i.ibb.co.com/Df8m63q5/e9d2264006a7586d1e35a031b5f3a913.jpg" alt="Logo" />
+          <div class="brand-name">Error Premium</div>
+          <div class="sub">PREDICTION ENGINE</div>
+        </div>
+        <input type="password" id="passwordInput" class="glass-input" placeholder="PASSWORD" />
+        <button class="btn-gold" onclick="verifyPassword()">ACCESS SYSTEM</button>
+        <div class="nav-footer">
+          <div class="tiny-btn" onclick="openTelegram()">📢 TELEGRAM</div>
+        </div>
+      </div>
+      
+      <div id="serverScreen" class="screen">
+        <div class="widget-header">
+          <img class="brand-logo" src="https://i.ibb.co.com/Df8m63q5/e9d2264006a7586d1e35a031b5f3a913.jpg" alt="Logo" />
+          <div class="brand-name">Error Premium</div>
+          <div class="sub">SELECT GAME MODE</div>
+        </div>
+        <button class="btn-gold" onclick="selectGameMode('1M')">⚡ WINGO 1 MIN</button>
+        <button class="btn-outline" onclick="selectGameMode('30S')">🔥 WINGO 30 SEC</button>
+      </div>
+      
+      <div id="engineScreen" class="screen">
+        <div class="widget-header">
+          <img class="brand-logo" src="https://i.ibb.co.com/Df8m63q5/e9d2264006a7586d1e35a031b5f3a913.jpg" alt="Logo" />
+          <div class="brand-name">Error Premium</div>
+        </div>
+        <div id="periodDisplay" style="font-size: 9px; background: rgba(0,0,0,0.8); border-radius: 20px; padding: 4px; text-align: center; color: #ffffff; font-weight: bold;">PERIOD: ---</div>
+        <div id="predictionValue" class="prediction-big" style="color:var(--gold)">---</div>
+        <div id="predictionNumber" class="prediction-num">NUM: --</div>
+        
+        <div class="meta-row">
+          <span id="timerCountdown" class="timer-text">⏱️ 00s</span>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+    const CONFIG = {
+        password: "Error", 
+        telegramLink: "https://t.me/dark_boy_404", 
+    };
+
+    const NUMBER_COLORS = {
+        0: { bg: 'linear-gradient(135deg, #9c27b0, #e91e63)', text: '#ffffff' }, 
+        5: { bg: 'linear-gradient(135deg, #4caf50, #9c27b0)', text: '#ffffff' }, 
+        1: { bg: '#ff4d6d', text: '#ffffff' }, 3: { bg: '#ff4d6d', text: '#ffffff' }, 7: { bg: '#ff4d6d', text: '#ffffff' }, 9: { bg: '#ff4d6d', text: '#ffffff' },
+        2: { bg: '#00f5a0', text: '#000000' }, 4: { bg: '#00f5a0', text: '#000000' }, 6: { bg: '#00f5a0', text: '#000000' }, 8: { bg: '#00f5a0', text: '#000000' }
+    };
+
+    let currentMode = null, engineActive = false, apiBaseUrl = "", lastIssueNumber = "", currentPredictionObj = null, intervalID = null;              
+
+    const loginScr = document.getElementById('loginScreen');
+    const serverScr = document.getElementById('serverScreen');
+    const engineScr = document.getElementById('engineScreen');
+    const mainPanel = document.getElementById('main-panel');
+    const periodSpan = document.getElementById('periodDisplay');
+    const predictionDiv = document.getElementById('predictionValue');
+    const predictionNumDiv = document.getElementById('predictionNumber');
+    const timerSpan = document.getElementById('timerCountdown');
+
+    function setActiveScreen(screenId) {
+        loginScr.setAttribute('style', 'display: none !important');
+        serverScr.setAttribute('style', 'display: none !important');
+        engineScr.setAttribute('style', 'display: none !important');
+        
+        if(screenId === 'login') {
+            loginScr.setAttribute('style', 'display: block !important');
+        } else if(screenId === 'server') {
+            serverScr.setAttribute('style', 'display: block !important');
+        } else if(screenId === 'engine') {
+            engineScr.setAttribute('style', 'display: block !important');
+        }
+    }
+
+    window.verifyPassword = function() {
+        const inputPass = document.getElementById('passwordInput').value.trim();
+        if(inputPass === CONFIG.password) {
+            setActiveScreen('server');
+        } else {
+            alert("⛔ ACCESS DENIED! Wrong Password.");
+        }
+    };
+
+    window.openTelegram = function() { window.open(CONFIG.telegramLink, '_blank'); };
+
+    window.selectGameMode = function(mode) {
+        currentMode = mode;
+        if(intervalID) clearInterval(intervalID);
+        lastIssueNumber = ""; currentPredictionObj = null;
+        
+        apiBaseUrl = (mode === '1M') 
+            ? "https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json?pageNo=1&pageSize=50"
+            : "https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json?pageNo=1&pageSize=50";
+        
+        engineActive = true;
+        setActiveScreen('engine');
+        startPredictionEngine();
+    };
+
+    async function fetchAndAnalyze() {
+        if(!engineActive || !apiBaseUrl) return;
+        try {
+            const response = await fetch(apiBaseUrl);
+            const json = await response.json();
+            if(!json || !json.data || !json.data.list || json.data.list.length === 0) return;
+            
+            const latestItem = json.data.list[0];      
+            const currentIssue = latestItem.issueNumber;
+            const currentNumber = latestItem.number;    
+            const numericValue = parseInt(currentNumber, 10);
+            const actualResult = (numericValue >= 5) ? "BIG" : "SMALL";
+            
+            lastIssueNumber = currentIssue;
+            const nextIssueId = (BigInt(currentIssue) + 1n).toString();
+            
+            if(!currentPredictionObj || currentPredictionObj.id !== nextIssueId) {
+                let predictedBS = (Math.random() < 0.12) ? ((actualResult === "BIG") ? "SMALL" : "BIG") : actualResult;
+                let luckyNum = (predictedBS === "BIG") ? Math.floor(Math.random() * 5) + 5 : Math.floor(Math.random() * 5);
+                
+                currentPredictionObj = { id: nextIssueId, bs: predictedBS, num: luckyNum };
+                
+                predictionDiv.innerText = predictedBS;
+                predictionDiv.style.color = (predictedBS === "BIG") ? "var(--gold)" : "#ff6b8b";
+                
+                const numStyle = NUMBER_COLORS[luckyNum] || { bg: '#fff', text: '#000' };
+                predictionNumDiv.innerText = `NUM: ${luckyNum}`;
+                predictionNumDiv.style.background = numStyle.bg;
+                predictionNumDiv.style.color = numStyle.text;
+
+                periodSpan.innerText = `PERIOD: ${nextIssueId.slice(-5)}`;
+            }
+        } catch(err) { console.warn(err); }
+    }
+    
+    function startPredictionEngine() {
+        if(intervalID) clearInterval(intervalID);
+        fetchAndAnalyze();
+        intervalID = setInterval(async () => {
+            if(!engineActive) return;
+            const seconds = new Date().getSeconds();
+            let remaining = (currentMode === '1M') ? (60 - seconds) : ((30 - (seconds % 30)) % 30 || 30);
+            timerSpan.innerText = `⏱️ ${remaining}s`;
+            await fetchAndAnalyze();
+        }, 1000);
+    }
+    
+    function makeDraggable(element) {
+        let isDragging = false, startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+        const onMouseMove = (e) => {
+            if (!isDragging) return;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            element.style.left = Math.min(Math.max(0, initialLeft + (clientX - startX)), window.innerWidth - element.offsetWidth) + "px";
+            element.style.top = Math.min(Math.max(0, initialTop + (clientY - startY)), window.innerHeight - element.offsetHeight) + "px";
+        };
+        const onMouseUp = () => {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp);
+            document.removeEventListener('touchmove', onMouseMove); document.removeEventListener('touchend', onMouseUp);
+        };
+        const startDrag = (e) => {
+            if(e.target.tagName === 'INPUT' || e.target.closest('button') || e.target.closest('.tiny-btn')) return;
+            isDragging = true;
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            initialLeft = parseFloat(element.style.left) || element.offsetLeft;
+            initialTop = parseFloat(element.style.top) || element.offsetTop;
+            document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('touchmove', onMouseMove, { passive: false }); document.addEventListener('touchend', onMouseUp);
+        };
+        element.addEventListener('mousedown', startDrag);
+        element.addEventListener('touchstart', startDrag, { passive: false });
+    }
+    makeDraggable(mainPanel);
+    
+    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') { verifyPassword(); }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => { setActiveScreen('login'); });
+    </script>
+  </body>
+</html>
